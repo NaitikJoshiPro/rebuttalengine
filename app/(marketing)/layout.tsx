@@ -7,7 +7,7 @@ import { Menu, X } from 'lucide-react';
 const NAV_LINKS = [
   { label: 'Features', href: '/features' },
   { label: 'Pricing', href: '/pricing' },
-];
+] as const;
 
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -115,8 +115,7 @@ function Footer() {
               {[
                 { label: 'Features', href: '/features' },
                 { label: 'Pricing', href: '/pricing' },
-                { label: 'Sign In', href: '/sign-in' },
-                { label: 'Get Started', href: '/register' },
+                { label: 'Sign In', href: '/login' },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
@@ -132,15 +131,13 @@ function Footer() {
 
           {/* Company */}
           <div>
-            <p className="section-label mb-4">Company</p>
+            <p className="section-label mb-4">Platform</p>
             <ul className="flex flex-col gap-3">
               {[
-                { label: 'About', href: '/about' },
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms of Service', href: '/terms' },
-                { label: 'Contact', href: '/contact' },
+                { label: 'RCA Manager', href: '/login' },
+                { label: 'Dashboard', href: '/login' },
               ].map((item) => (
-                <li key={item.href}>
+                <li key={item.label}>
                   <Link
                     href={item.href}
                     className="text-[#7A95A5] hover:text-gold-400 transition-colors duration-150 text-sm"

@@ -80,30 +80,30 @@ async function generateSingleRebuttal(
   });
   if (!c) return { caseId, success: false, error: 'Not found' };
 
-  const d = c.details ?? {};
+  const d = c.details;
   const detailForEngine = {
-    hotelName:          d.hotelName,
-    hotelAddress:       d.hotelAddress,
-    roomType:           d.roomType,
-    checkInDate:        d.checkInDate?.toISOString() ?? null,
-    checkOutDate:       d.checkOutDate?.toISOString() ?? null,
-    guestName:          d.guestName,
-    bookingDate:        d.bookingDate?.toISOString() ?? null,
-    bookingInterface:   d.bookingInterface,
-    cardholderName:     d.cardholderName,
-    billingAddress:     d.billingAddress,
-    billingCity:        d.billingCity,
-    billingZip:         d.billingZip,
-    billingPhone:       d.billingPhone,
-    email:              d.email,
-    ipAddress:          d.ipAddress,
-    authorizationCode:  d.authorizationCode,
-    avsResult:          d.avsResult,
-    cvvResult:          d.cvvResult,
-    accertifyScore:     d.accertifyScore,
-    cancellationDate:   d.cancellationDate?.toISOString() ?? null,
-    cancellationPolicy: d.cancellationPolicy,
-    totalAmount:        d.totalAmount != null ? Number(d.totalAmount) : null,
+    hotelName:          d?.hotelName ?? null,
+    hotelAddress:       d?.hotelAddress ?? null,
+    roomType:           d?.roomType ?? null,
+    checkInDate:        d?.checkInDate?.toISOString() ?? null,
+    checkOutDate:       d?.checkOutDate?.toISOString() ?? null,
+    guestName:          d?.guestName ?? null,
+    bookingDate:        d?.bookingDate?.toISOString() ?? null,
+    bookingInterface:   d?.bookingInterface ?? null,
+    cardholderName:     d?.cardholderName ?? null,
+    billingAddress:     d?.billingAddress ?? null,
+    billingCity:        d?.billingCity ?? null,
+    billingZip:         d?.billingZip ?? null,
+    billingPhone:       d?.billingPhone ?? null,
+    email:              d?.email ?? null,
+    ipAddress:          d?.ipAddress ?? null,
+    authorizationCode:  d?.authorizationCode ?? null,
+    avsResult:          d?.avsResult ?? null,
+    cvvResult:          d?.cvvResult ?? null,
+    accertifyScore:     d?.accertifyScore ?? null,
+    cancellationDate:   d?.cancellationDate?.toISOString() ?? null,
+    cancellationPolicy: d?.cancellationPolicy ?? null,
+    totalAmount:        d?.totalAmount != null ? Number(d.totalAmount) : null,
     confirmationNumber: c.confirmationNumber,
     transactionAmount:  c.transactionAmount != null ? Number(c.transactionAmount) : null,
     taxAmount:          c.taxAmount != null ? Number(c.taxAmount) : null,
@@ -189,7 +189,7 @@ async function exportSinglePDF(
   });
   if (!c) return { caseId, success: false, error: 'Not found' };
 
-  let rebuttal = c.rebuttals[0] ?? null;
+  let rebuttal = c.rebuttals.at(0) ?? null;
   if (!rebuttal) {
     rebuttal = await prisma.rebuttal.findFirst({
       where: { caseId },

@@ -63,11 +63,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     session({ session, token }) {
       session.user.id = token.id as string;
-      (session.user as Record<string, unknown>).orgId = token.orgId;
-      (session.user as Record<string, unknown>).orgName = token.orgName;
-      (session.user as Record<string, unknown>).orgSlug = token.orgSlug;
-      (session.user as Record<string, unknown>).role = token.role;
-      (session.user as Record<string, unknown>).merchantName = token.merchantName;
+      const u = session.user as unknown as Record<string, unknown>;
+      u.orgId = token.orgId;
+      u.orgName = token.orgName;
+      u.orgSlug = token.orgSlug;
+      u.role = token.role;
+      u.merchantName = token.merchantName;
       return session;
     },
   },

@@ -255,7 +255,7 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
   }
 
   // Fall back to latest rebuttal if none approved
-  let rebuttal = c.rebuttals[0] ?? null;
+  let rebuttal = c.rebuttals.at(0) ?? null;
   if (!rebuttal) {
     rebuttal = await prisma.rebuttal.findFirst({
       where: { caseId: id },
@@ -292,7 +292,7 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
         },
         rebuttalContent: rebuttal.content,
         generatedDate,
-      }),
+      }) as unknown as React.ReactElement<{ title?: string }>,
     );
   } catch (err) {
     console.error('[export] PDF render error:', err);
@@ -330,7 +330,7 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
 
   // 6. Return PDF bytes
   const filename = `rebuttal-${c.caseNumber}-v${rebuttal.version}.pdf`;
-  return new NextResponse(pdfBuffer, {
+  return new NextResponse(new Uint8Array(pdfBuffer), {
     status: 200,
     headers: {
       'Content-Type':        'application/pdf',
