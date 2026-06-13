@@ -1,33 +1,35 @@
-import { auth } from '@/lib/auth';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export default auth((req) => {
+const PORTAL_PREFIXES = ['/dashboard', '/rca', '/evidence', '/reports', '/settings'];
+const API_PROTECTED   = ['/api/cases', '/api/orgs'];
+
+function hasSession(req: NextRequest): boolean {
+  return !!(
+    req.cookies.get('authjs.session-token') ??
+    req.cookies.get('__Secure-authjs.session-token')
+  );
+}
+
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const isPortalRoute = pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/rca') ||
-    pathname.startsWith('/evidence') ||
-    pathname.startsWith('/reports') ||
-    pathname.startsWith('/settings');
+  const isPortal      = PORTAL_PREFIXES.some(p => pathname.startsWith(p));
+  const isApiGuarded  = API_PROTECTED.some(p => pathname.startsWith(p));
+  const authenticated = hasSession(req);
 
-  const isApiProtected = pathname.startsWith('/api/cases') ||
-    pathname.startsWith('/api/orgs');
-
-  if ((isPortalRoute || isApiProtected) && !req.auth) {
+  if ((isPortal || isApiGuarded) && !authenticated) {
     const loginUrl = new URL('/login', req.url);
-    loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+    loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (req.auth && pathname === '/login') {
+  if (pathname === '/login' && authenticated) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.svg$).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.svg$).*)'],
 };
