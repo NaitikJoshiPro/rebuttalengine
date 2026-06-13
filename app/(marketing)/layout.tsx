@@ -46,7 +46,7 @@ function Nav() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/sign-in" className="btn-primary py-2.5 px-5">
+            <Link href="/login" className="btn-primary py-2.5 px-5">
               Sign In
             </Link>
           </nav>
@@ -80,7 +80,7 @@ function Nav() {
             </Link>
           ))}
           <Link
-            href="/sign-in"
+            href="/login"
             onClick={() => setMenuOpen(false)}
             className="btn-primary self-start"
           >
