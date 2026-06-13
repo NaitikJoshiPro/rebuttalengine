@@ -1,0 +1,340 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+// ─── Multi-tenant foundation ─────────────────────────────────────────────────
+
+model Org {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  merchantName String?
+  merchantMcc  String?
+  plan        OrgPlan  @default(STARTER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       OrgUser[]
+  cases       Case[]
+  patterns    ReasonCodePattern[]
+  invites     OrgInvite[]
+}
+
+model OrgUser {
+  id        String   @id @default(cuid())
+  orgId     String
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      UserRole @default(ANALYST)
+  joinedAt  DateTime @default(now())
+
+  @@unique([orgId, userId])
+}
+
+model OrgInvite {
+  id        String   @id @default(cuid())
+  orgId     String
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  email     String
+  role      UserRole @default(ANALYST)
+  token     String   @unique @default(cuid())
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([orgId, email])
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  avatarUrl    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  orgs         OrgUser[]
+  claimedCases Case[]    @relation("ClaimedBy")
+  createdCases Case[]    @relation("CreatedBy")
+  auditLogs    AuditLog[]
+}
+
+// ─── Case management ─────────────────────────────────────────────────────────
+
+model Case {
+  id              String      @id @default(cuid())
+  orgId           String
+  org             Org         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  // Core identifiers
+  caseNumber      String
+  itnNumber       String
+  reservationNumber String?
+  confirmationNumber String?
+
+  // Dispute metadata
+  reasonCode      ReasonCode
+  disputeType     DisputeType @default(CB)
+  portal          String?     // "Amex", "Chase", "Braintree", "Affirm", etc.
+  currency        String      @default("USD")
+  mop             String?     // method of payment
+
+  // Dates
+  receivedDate    DateTime
+  dueDate         DateTime?
+  transactionDate DateTime?
+
+  // Amounts
+  disputeAmount   Decimal  @db.Decimal(12, 2)
+  transactionAmount Decimal? @db.Decimal(12, 2)
+  refundAmount    Decimal? @db.Decimal(12, 2)
+  taxAmount       Decimal? @db.Decimal(12, 2)
+  serviceFeeAmount Decimal? @db.Decimal(12, 2)
+
+  // Status
+  status          CaseStatus        @default(UNCLAIMED)
+  templateStatus  TemplateStatus    @default(PENDING)
+  outcome         CaseOutcome?
+  aiOutcome       String?           // AUTO_WIN_72H, WIN_30_90D, etc.
+  aiConfidence    Decimal?          @db.Decimal(4, 3)
+
+  // Assignment
+  claimedById     String?
+  claimedBy       User?    @relation("ClaimedBy", fields: [claimedById], references: [id])
+  claimedAt       DateTime?
+  resolvedAt      DateTime?
+  resolvedById    String?
+
+  // Text fields
+  issuerNotes     String?  @db.Text
+  notesForBank    String?  @db.Text
+  internalNotes   String?  @db.Text
+  cancelPolicy    String?  @db.Text
+  affirmLink      String?
+
+  // Routing flags
+  requiresEmailConfirmation Boolean @default(false)
+  sentForRecovery           Boolean @default(false)
+  sentForVbException        Boolean @default(false)
+  fraudCodeDetected         Boolean @default(false)
+
+  // Relations
+  createdById     String
+  createdBy       User     @relation("CreatedBy", fields: [createdById], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  details         CaseDetail?
+  rebuttals       Rebuttal[]
+  evidence        Evidence[]
+  auditLogs       AuditLog[]
+
+  @@unique([orgId, caseNumber])
+  @@index([orgId, status])
+  @@index([orgId, reasonCode])
+  @@index([orgId, claimedById])
+  @@index([orgId, dueDate])
+}
+
+model CaseDetail {
+  id                 String   @id @default(cuid())
+  caseId             String   @unique
+  case               Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  // Hotel / stay
+  hotelName          String?
+  hotelAddress       String?
+  roomType           String?
+  checkInDate        DateTime?
+  checkOutDate       DateTime?
+  guestName          String?
+  bookingDate        DateTime?
+  bookingInterface   String?  // "web", "call_center", "mobile"
+
+  // Cardholder
+  cardholderName     String?
+  billingAddress     String?
+  billingCity        String?
+  billingZip         String?
+  billingPhone       String?
+  email              String?
+
+  // Auth/fraud signals
+  ipAddress          String?
+  authorizationCode  String?
+  avsResult          String?
+  cvvResult          String?
+  accertifyScore     String?
+
+  // Cancellation
+  cancellationDate   DateTime?
+  cancellationPolicy String?  @db.Text
+
+  // Fee breakdown
+  totalAmount        Decimal? @db.Decimal(12, 2)
+
+  // Evidence screenshot file references (Drive IDs or Blob URLs)
+  wexScreenshotRef       String?
+  accertifyScreenshotRef String?
+  refundScreenshotRef    String?
+  contactScreenshotRef   String?
+  ipScreenshotRef        String?
+  nonFraud1Ref           String?
+  nonFraud2Ref           String?
+}
+
+model Rebuttal {
+  id          String         @id @default(cuid())
+  caseId      String
+  case        Case           @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  orgId       String
+
+  content     String         @db.Text
+  pdfUrl      String?
+  version     Int            @default(1)
+  modelUsed   String?        // "claude-sonnet-4-6", "claude-opus-4-8", etc.
+  confidence  Decimal?       @db.Decimal(4, 3)
+  verifierDecision String?   // "PICK_A", "PICK_B", "TIE", "MANUAL_REVIEW"
+  isApproved  Boolean        @default(false)
+
+  createdAt   DateTime       @default(now())
+
+  @@index([caseId])
+  @@index([orgId])
+}
+
+model Evidence {
+  id        String   @id @default(cuid())
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  orgId     String
+
+  label     String
+  fileUrl   String
+  fileType  String   // "pdf", "image", "doc"
+  fileSize  Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([caseId])
+}
+
+model ReasonCodePattern {
+  id           String     @id @default(cuid())
+  orgId        String
+  org          Org        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  reasonCode   ReasonCode
+  coreStrategy String     @db.Text
+  evidenceTypes String[]
+  snippets     Json       // Record<string, string>
+  conditionalRules Json   // { condition: string; action: string }[]
+  structure    String[]
+  isActive     Boolean    @default(true)
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([orgId, reasonCode])
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  orgId         String
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  caseId        String?
+  case          Case?       @relation(fields: [caseId], references: [id])
+
+  action        AuditAction
+  module        String      // "CASE", "REBUTTAL", "USER", "ORG", "PATTERN"
+  entityType    String
+  entityId      String
+  details       String?     @db.Text
+  previousValue String?     @db.Text
+  newValue      String?     @db.Text
+
+  createdAt     DateTime    @default(now())
+
+  @@index([orgId, createdAt])
+  @@index([caseId])
+  @@index([userId])
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum OrgPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum UserRole {
+  VIEWER    // 1 — canViewCases
+  ANALYST   // 2 — + canEditCases, canGenerateRebuttals
+  MANAGER   // 3 — + canApproveCases, canBulkAction
+  LEADER    // 4 — + canManagePatterns, canViewReports
+  ADMIN     // 5 — + canManageUsers, canManageOrg, canViewAuditLog
+}
+
+enum ReasonCode {
+  CANCELLED_RECURRING
+  FRAUD
+  PRODUCT_NOT_RECEIVED
+  PRODUCT_UNSATISFACTORY
+  TRANSACTION_AMOUNT_DIFFERS
+}
+
+enum DisputeType {
+  CB   // Chargeback
+  INQ  // Inquiry / retrieval
+  PRE  // Pre-arbitration
+}
+
+enum CaseStatus {
+  UNCLAIMED    // new, not assigned
+  PENDING      // claimed by analyst
+  IN_PROGRESS  // rebuttal being drafted
+  READY        // rebuttal generated, awaiting export
+  SUBMITTED    // sent to bank/PSP
+  WON
+  LOST
+  ACCEPTED     // chargeback accepted (intentional loss)
+}
+
+enum TemplateStatus {
+  PENDING
+  PROCESSING
+  READY
+  ERROR
+}
+
+enum CaseOutcome {
+  WON
+  LOST
+  ACCEPTED
+  RECOVERED
+  VB_EXCEPTION
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATE_CHANGE
+  CLAIM
+  UNCLAIM
+  GENERATE_REBUTTAL
+  APPROVE_REBUTTAL
+  EXPORT_PDF
+  SUBMIT
+  ROUTE_RECOVERY
+  ROUTE_VB_EXCEPTION
+  LOGIN
+  USER_CREATE
+  USER_UPDATE
+  ROLE_ASSIGN
+}

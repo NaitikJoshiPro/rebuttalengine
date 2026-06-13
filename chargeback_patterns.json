@@ -1,0 +1,245 @@
+{
+    "merchant_info": {
+        "mcc": 4722,
+        "name": "Priceline Partner Solutions",
+        "description": "Third party confirmed booking agency / travel facilitator",
+        "core_defense_theme": "The OTA acts purely as a facilitator and not a room-holding agency. The guest agreed to the cancellation policies and total transaction amounts prior to confirming the booking, making the charge valid."
+    },
+    "reason_codes": {
+        "Cancelled Recurring": {
+            "dispute_types": [
+                "CB"
+            ],
+            "core_strategy": "The reservation was either not cancelled according to the agreed-upon policy or was cancelled within the penalty period, rendering it non-refundable. The service remained available or was made unavailable solely due to the customer's late cancellation.",
+            "evidence_types": [
+                "Booking confirmation (showing dates and terms)",
+                "Cancellation policy agreement (T&C Sec 28)",
+                "Customer communication logs (or lack thereof)",
+                "Proof of cancellation penalty applied"
+            ],
+            "text_snippets": {
+                "intro": "The cardholder booked the prepaid reservation through Priceline Partner Solutions, a third party website that acts as a travel agent in facilitating hotel reservations and other travel services. Please be advised that Priceline Partner Solutions is NOT a room-holding /room-blocking agency.",
+                "policy_agreement": "The reservation was made online through our website by the cardholder... The cardholder booked the reservation having first agreed to the full transaction amount, cancellation policy, and clicked the box agreeing to the terms and conditions (T&C) at the time of booking before their card was charged.",
+                "no_contact": "No contact was received via Priceline customer service phone line or via Travel Agent site, as required per the attached cancellation policy (T&C Sec 28) prior to filing a chargeback.",
+                "closing": "Customer was made aware of and agreed to the cancellation policy prior to confirming the booking... Cardholder's chargeback is an erroneous attempt to circumvent the cancellation policy and breach the contract... A reversal is due."
+            },
+            "conditional_rules": [
+                {
+                    "condition": "Customer cancelled within penalty period",
+                    "action": "Include snippet detailing exact cancellation time and reiterate that it falls within the non-refundable window."
+                },
+                {
+                    "condition": "Customer never contacted to cancel",
+                    "action": "Include snippet stating reservation was available at check-in and no valid cancellation request was received."
+                }
+            ],
+            "placeholders": [
+                "{hotel_name}",
+                "{guest_name}",
+                "{check_in_date}",
+                "{check_out_date}",
+                "{reservation_date}",
+                "{cancellation_date}",
+                "{confirmation_number}"
+            ],
+            "rebuttal_structure": [
+                "intro",
+                "booking_details",
+                "cancellation_policy_reference",
+                "case_specific_facts",
+                "policy_agreement",
+                "closing"
+            ]
+        },
+        "Fraud": {
+            "dispute_types": [
+                "CB",
+                "INQ"
+            ],
+            "core_strategy": "The transaction was validly authorized. The cardholder participated in the transaction, as evidenced by matching AVS/CVV data, communication logs, and/or identical billing and guest information.",
+            "evidence_types": [
+                "AVS (Address Verification System) Match Logs",
+                "CVV Match Logs",
+                "Booking confirmation sent to cardholder's email",
+                "IP Address Logs",
+                "Guest list matching cardholder name"
+            ],
+            "text_snippets": {
+                "intro": "We have investigated this transaction and have found it to be a valid charge. The cardholder's claim of fraud is invalid because the cardholder participated in this transaction.",
+                "avs_match": "Please note the AVS (Address Verification System) result was an exact match. The address provided at the time of booking matches the billing address on file with the card issuer.",
+                "booking_process": "The reservation was made online through our website by the cardholder and all information was entered by the cardholder... The cardholder booked the reservation having first agreed to the full transaction amount, cancellation policy, and clicked the box agreeing to the terms and conditions.",
+                "closing": "As the cardholder participated in the transaction and all security checks (AVS/CVV) passed, this charge is valid and we respectfully request that the chargeback be reversed."
+            },
+            "conditional_rules": [
+                {
+                    "condition": "AVS/CVV is an exact match",
+                    "action": "Explicitly state that AVS and/or CVV matched the bank's records, proving authorization."
+                },
+                {
+                    "condition": "Multiple bookings made with same card/device",
+                    "action": "Point out the pattern of previous successful bookings indicating the cardholder's history with the merchant."
+                },
+                {
+                    "condition": "Guest name differs from Cardholder name",
+                    "action": "Note that the cardholder made the reservation successfully for a third party (the guest) and provided all accurate billing data."
+                }
+            ],
+            "placeholders": [
+                "{hotel_name}",
+                "{guest_name}",
+                "{check_in_date}",
+                "{check_out_date}",
+                "{confirmation_number}",
+                "{avs_result}",
+                "{cvv_result}"
+            ],
+            "rebuttal_structure": [
+                "intro",
+                "fraud_investigation_results",
+                "booking_details",
+                "avs_cvv_evidence",
+                "policy_agreement",
+                "closing"
+            ]
+        },
+        "Product Not Received": {
+            "dispute_types": [
+                "CB"
+            ],
+            "core_strategy": "The prepaid reservation was confirmed and the service was made available to the guest. The guest failed to arrive or cancelled when the reservation was non-refundable. The merchant fulfilled its obligation.",
+            "evidence_types": [
+                "Booking confirmation",
+                "Cancellation policy",
+                "Proof of supplier billing (hotel billed PPS)",
+                "Proof of relocation (if property was closed)"
+            ],
+            "text_snippets": {
+                "intro": "The cardholder booked the prepaid reservation through Priceline Partner Solutions, a third party website that acts as a travel agent in facilitating hotel reservations... Priceline Partner Solutions is NOT a room-holding /room-blocking agency.",
+                "service_available": "Reservation was available at the time of check-in. All policies agreed to and sent to guests after the completion of booking process. The supplier billed Priceline for the stay, and Priceline billed the guest.",
+                "active_status": "At the time of filing the Chargeback, THE RESERVATION WAS ACTIVE AND READY FOR THE GUEST TO CHECK IN. No refund due.",
+                "policy_agreement": "The reservation was made online through our website by the cardholder... The cardholder booked the reservation having first agreed to the full transaction amount, cancellation policy, and clicked the box agreeing to the terms and conditions (T&C).",
+                "closing": "Customer was made aware of and agreed to the cancellation policy prior to confirming the booking... Cardholder owes Priceline Partner Solutions for the reservation. A reversal is due."
+            },
+            "conditional_rules": [
+                {
+                    "condition": "Guest cancelled voluntarily when non-refundable",
+                    "action": "State that since the customer chose to cancel, the service which was supposed to be available couldn't be rendered, hence the chargeback is invalid."
+                },
+                {
+                    "condition": "Hotel was closed / Relocation provided",
+                    "action": "Provide evidence that an alternate accommodation of equal or greater value was offered and communication was sent beforehand."
+                },
+                {
+                    "condition": "Future dated reservation disputed",
+                    "action": "State explicitly that the check-in date is in the future and the reservation remains active and ready."
+                }
+            ],
+            "placeholders": [
+                "{hotel_name}",
+                "{guest_name}",
+                "{check_in_date}",
+                "{check_out_date}",
+                "{confirmation_number}",
+                "{cancellation_date}"
+            ],
+            "rebuttal_structure": [
+                "intro",
+                "booking_details",
+                "service_availability_proof",
+                "cancellation_policy_reference",
+                "policy_agreement",
+                "closing"
+            ]
+        },
+        "Product Unsatisfactory": {
+            "dispute_types": [
+                "CB"
+            ],
+            "core_strategy": "The OTA is a booking facilitator, not the property operator, and is not liable for the quality of the hotel rooms as per T&C Section 17. The guest used the reservation and/or failed to provide documentary evidence of poor standards. The reservation is non-refundable.",
+            "evidence_types": [
+                "T&C Section 17 (Disclaimer of Liability for Quality)",
+                "Booking confirmation",
+                "Proof of stay / utilization",
+                "Lack of photo evidence or formal incident reports from guest"
+            ],
+            "text_snippets": {
+                "intro": "The cardholder booked the prepaid reservation through Priceline Partner Solutions, a third party that acts as a travel agent... Priceline Partner Solutions is NOT a room-holding /room-blocking agency.",
+                "quality_disclaimer": "Per the additional terms under Travel Agency Agreement, Section 17 states that because of the nature of Travel Agent's Services, we are not in control of the quality of rooms provided by any particular hotel at any time. Travel Agent has no control over, and makes no representations regarding, the quality, safety or legality of the products and services offered.",
+                "liability_denial": "The terms state that Priceline Partner Solutions is not responsible for the services provided at the hotel; Priceline Partner Solutions is merely the facilitator of the hotel booking process.",
+                "policy_agreement": "The guest had agreed to the reservation as well as the terms and conditions of the reservations prior to accepting/confirming his/her payment... Customer was made aware of and agreed to the cancellation policy.",
+                "closing": "This reservation is non-refundable once services are rendered... Per terms and conditions as well as the cancellation policy emailed to the customer at the time of booking, the customer is due no refund."
+            },
+            "conditional_rules": [
+                {
+                    "condition": "Guest complains of early checkout / unused nights",
+                    "action": "State that early checkout does not change the agreed terms, and the room was held for the entire duration making it unavailable to others."
+                },
+                {
+                    "condition": "Guest provides no proof of issues",
+                    "action": "Point out that the cardholder failed to provide any documentation (photos, incident reports) proving the service fell below industry standards, yet proceeded to utilize the stay."
+                }
+            ],
+            "placeholders": [
+                "{hotel_name}",
+                "{guest_name}",
+                "{check_in_date}",
+                "{check_out_date}",
+                "{confirmation_number}"
+            ],
+            "rebuttal_structure": [
+                "intro",
+                "booking_details",
+                "quality_disclaimer",
+                "liability_denial",
+                "policy_agreement",
+                "closing"
+            ]
+        },
+        "Transaction Amount Differs": {
+            "dispute_types": [
+                "CB"
+            ],
+            "core_strategy": "The total transaction amount, including Tax Recovery Charges and Service Fees, was fully disclosed and agreed to by the cardholder before the payment was processed.",
+            "evidence_types": [
+                "Checkout page screenshot / Terms & Conditions showing fee breakdown",
+                "Booking confirmation email showing total amount charged",
+                "T&C definition of Tax Recovery Charge and Service Fee"
+            ],
+            "text_snippets": {
+                "intro": "The customer agreed to and confirmed acceptance of the full transaction price before providing their card information to book the room. The customer is disputing the amount of taxes and service fees.",
+                "fee_breakdown_1": "Tax Recovery Charge: This charge represents the estimated taxes that we collect and remit directly to the hotel or affiliated supplier on the customer\u2019s behalf. It ensures compliance with local tax obligations related to the reservation.",
+                "fee_breakdown_2": "Service Fee: This is a non-refundable fee that covers the administrative and operational costs of securing and managing the reservation with our affiliate or supplier. It was clearly itemized during the checkout process.",
+                "policy_agreement": "The reservation was made online through our website by the cardholder... The cardholder booked the reservation having first agreed to the full transaction amount, cancellation policy, and clicked the box agreeing to the terms and conditions (T&C).",
+                "closing": "These fees, along with the total transaction amount, were acknowledged and approved by the customer prior to confirming the reservation. The reservation charge remains valid and consistent with the agreed-upon terms."
+            },
+            "conditional_rules": [
+                {
+                    "condition": "Guest claims hidden fees",
+                    "action": "Reiterate that these facts are listed in the T&C which the customer agreed to before their card was charged."
+                }
+            ],
+            "placeholders": [
+                "{hotel_name}",
+                "{guest_name}",
+                "{check_in_date}",
+                "{check_out_date}",
+                "{confirmation_number}",
+                "{total_amount}",
+                "{tax_amount}",
+                "{service_fee_amount}"
+            ],
+            "rebuttal_structure": [
+                "intro",
+                "booking_details",
+                "fee_breakdown_explanation",
+                "policy_agreement",
+                "closing"
+            ]
+        }
+    },
+    "global_snippets": {
+        "agency_defense": "The cardholder booked the prepaid reservation through Priceline Partner Solutions, a third party website that acts as a travel agent in facilitating hotel reservations and other travel services. Please be advised that Priceline Partner Solutions is NOT a room-holding /room-blocking agency.",
+        "terms_acceptance": "The reservation was made online through our website by the cardholder and all information was entered by the cardholder including check in/check out dates, hotel name, location, city, state, country, room types, number of persons booked, charges. The cardholder booked the reservation having first agreed to the full transaction amount, cancellation policy, and clicked the box agreeing to the terms and conditions (T&C) at the time of booking before their card was charged and the card holder was sent confirmation mail in regards to the same.",
+        "cancellation_policy_reminder": "Customer was made aware of and agreed to the cancellation policy prior to confirming the booking. At the time the booking was made, the reservation was non-refundable. Cardholder's chargeback is an erroneous attempt to circumvent the cancellation policy and breach the contract the customer entered when agreeing to the Terms and Conditions (T&C) before his card was charged."
+    }
+}
