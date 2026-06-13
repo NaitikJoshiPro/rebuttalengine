@@ -136,7 +136,7 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-wrap gap-4 animate-fade-in-up" style={{ animationDelay: '0.26s' }}>
-              <Link href="/register" className="btn-primary">
+              <Link href="/login" className="btn-primary">
                 Start Free Trial
               </Link>
               <Link href="/features" className="btn-secondary">
@@ -293,7 +293,7 @@ export default function HomePage() {
           <p className="text-[#7A95A5] text-lg mb-10 max-w-lg mx-auto">
             Join dispute teams who have cut rebuttal time from hours to seconds. No credit card required.
           </p>
-          <Link href="/register" className="btn-primary">
+          <Link href="/login" className="btn-primary">
             Get Started Free
           </Link>
         </div>

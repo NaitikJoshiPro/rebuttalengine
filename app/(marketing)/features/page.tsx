@@ -109,7 +109,7 @@ export default function FeaturesPage() {
             <p className="text-[#7A95A5] text-lg leading-relaxed max-w-2xl mb-10">
               Every feature in Rebuttal Engine was designed around a single principle: give analysts the tools to generate compelling, accurate, bank-ready responses without the overhead of manual drafting.
             </p>
-            <Link href="/register" className="btn-primary">
+            <Link href="/login" className="btn-primary">
               Start Free Trial
             </Link>
           </div>
@@ -185,7 +185,7 @@ export default function FeaturesPage() {
                     ))}
                   </ul>
                   <Link
-                    href="/register"
+                    href="/login"
                     className={`inline-flex items-center gap-2 font-extrabold uppercase tracking-widest text-gold-500 hover:text-gold-400 transition-colors duration-150`}
                     style={{ fontSize: '10px', letterSpacing: '2px' }}
                   >
@@ -262,7 +262,7 @@ export default function FeaturesPage() {
             No credit card required. Get full access to all features on the Starter plan and upgrade when your volume demands it.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/register" className="btn-primary">
+            <Link href="/login" className="btn-primary">
               Start Free Trial
             </Link>
             <Link href="/pricing" className="btn-secondary">

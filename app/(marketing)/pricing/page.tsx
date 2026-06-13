@@ -342,10 +342,10 @@ export default function PricingPage() {
             Free plan, no credit card required. Upgrade to Professional when you&apos;re ready for team collaboration and higher volume.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/register" className="btn-primary">
+            <Link href="/login" className="btn-primary">
               Get Started Free
             </Link>
-            <Link href="/contact" className="btn-secondary">
+            <Link href="/login" className="btn-secondary">
               Talk to Sales
             </Link>
           </div>
